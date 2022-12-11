@@ -136,48 +136,23 @@ class UserAccelerometerEvent {
 }
 
 class OrientationEvent {
-  OrientationEvent(this.yaw, this.pitch, this.roll);
+  OrientationEvent(this.quaternion, {this.accuracy});
   OrientationEvent.fromList(List<double> list)
-      : yaw = list[0],
-        pitch = list[1],
-        roll = list[2];
+      : quaternion = Quaternion(list[0], list[1], list[2], list[3]),
+        accuracy = list[4];
 
-  /// The yaw of the device in radians.
-  final double yaw;
-
-  /// The pitch of the device in radians.
-  final double pitch;
-
-  /// The roll of the device in radians.
-  final double roll;
+  final Quaternion quaternion;
+  final double? accuracy;
   @override
-  String toString() => '[Orientation (yaw: $yaw, pitch: $pitch, roll: $roll)]';
-}
-
-class AbsoluteOrientationEvent {
-  AbsoluteOrientationEvent(this.yaw, this.pitch, this.roll);
-  AbsoluteOrientationEvent.fromList(List<double> list)
-      : yaw = list[0],
-        pitch = list[1],
-        roll = list[2];
-
-  /// The yaw of the device in radians.
-  final double yaw;
-
-  /// The pitch of the device in radians.
-  final double pitch;
-
-  /// The roll of the device in radians.
-  final double roll;
-  @override
-  String toString() => '[Orientation (yaw: $yaw, pitch: $pitch, roll: $roll)]';
+  String toString() =>
+      '[Orientation (quaternion: $quaternion, accuracy: $accuracy)]';
 }
 
 class ScreenOrientationEvent {
   ScreenOrientationEvent(this.angle);
 
   /// The screen's current orientation angle. The angle may be 0, 90, 180, -90 degrees
-  final double? angle;
+  final double angle;
 
   @override
   String toString() => '[ScreenOrientation (angle: $angle)]';
@@ -189,9 +164,8 @@ class MotionSensors {
   Stream<UserAccelerometerEvent>? _userAccelerometerEvents;
   Stream<MagnetometerEvent>? _magnetometerEvents;
   Stream<OrientationEvent>? _orientationEvents;
-  Stream<AbsoluteOrientationEvent>? _absoluteOrientationEvents;
+  Stream<OrientationEvent>? _absoluteOrientationEvents;
   Stream<ScreenOrientationEvent>? _screenOrientationEvents;
-  OrientationEvent? _initialOrientation;
 
   static const int TYPE_ACCELEROMETER = 1;
   static const int TYPE_MAGNETIC_FIELD = 2;
@@ -282,21 +256,19 @@ class MotionSensors {
   /// The current orientation of the device.
   Stream<OrientationEvent> get orientation {
     if (_orientationEvents == null) {
-      _orientationEvents = _orientationChannel.receiveBroadcastStream().map((dynamic event) {
-        var orientation = OrientationEvent.fromList(event.cast<double>());
-        _initialOrientation ??= orientation;
-        // Change the initial yaw of the orientation to zero
-        var yaw = (orientation.yaw + math.pi - _initialOrientation!.yaw) % (math.pi * 2) - math.pi;
-        return OrientationEvent(yaw, orientation.pitch, orientation.roll);
-      });
+      _orientationEvents = _orientationChannel.receiveBroadcastStream().map(
+          (dynamic event) => OrientationEvent.fromList(event.cast<double>()));
     }
     return _orientationEvents!;
   }
 
   /// The current absolute orientation of the device.
-  Stream<AbsoluteOrientationEvent> get absoluteOrientation {
+  Stream<OrientationEvent> get absoluteOrientation {
     if (_absoluteOrientationEvents == null) {
-      _absoluteOrientationEvents = _absoluteOrientationChannel.receiveBroadcastStream().map((dynamic event) => AbsoluteOrientationEvent.fromList(event.cast<double>()));
+      _absoluteOrientationEvents = _absoluteOrientationChannel
+          .receiveBroadcastStream()
+          .map((dynamic event) =>
+              OrientationEvent.fromList(event.cast<double>()));
     }
     return _absoluteOrientationEvents!;
   }
@@ -304,7 +276,9 @@ class MotionSensors {
   /// The rotation of the screen from its "natural" orientation.
   Stream<ScreenOrientationEvent> get screenOrientation {
     if (_screenOrientationEvents == null) {
-      _screenOrientationEvents = _screenOrientationChannel.receiveBroadcastStream().map((dynamic event) => ScreenOrientationEvent(event as double?));
+      _screenOrientationEvents = _screenOrientationChannel
+          .receiveBroadcastStream()
+          .map((dynamic event) => ScreenOrientationEvent(event as double));
     }
     return _screenOrientationEvents!;
   }

@@ -16,8 +16,8 @@ class _MyAppState extends State<MyApp> {
   Vector3 _gyroscope = Vector3.zero();
   Vector3 _magnetometer = Vector3.zero();
   Vector3 _userAaccelerometer = Vector3.zero();
-  Vector3 _orientation = Vector3.zero();
-  Vector3 _absoluteOrientation = Vector3.zero();
+  Quaternion _orientation = Quaternion.identity();
+  Quaternion _absoluteOrientation = Quaternion.identity();
   Vector3 _absoluteOrientation2 = Vector3.zero();
   double? _screenOrientation = 0;
 
@@ -52,14 +52,14 @@ class _MyAppState extends State<MyApp> {
       if (available) {
         motionSensors.orientation.listen((OrientationEvent event) {
           setState(() {
-            _orientation.setValues(event.yaw, event.pitch, event.roll);
+            _orientation = event.quaternion;
           });
         });
       }
     });
-    motionSensors.absoluteOrientation.listen((AbsoluteOrientationEvent event) {
+    motionSensors.absoluteOrientation.listen((OrientationEvent event) {
       setState(() {
-        _absoluteOrientation.setValues(event.yaw, event.pitch, event.roll);
+        _absoluteOrientation = event.quaternion;
       });
     });
     motionSensors.screenOrientation.listen((ScreenOrientationEvent event) {
@@ -156,6 +156,7 @@ class _MyAppState extends State<MyApp> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
+                  Text('${degrees(_orientation.w).toStringAsFixed(4)}'),
                   Text('${degrees(_orientation.x).toStringAsFixed(4)}'),
                   Text('${degrees(_orientation.y).toStringAsFixed(4)}'),
                   Text('${degrees(_orientation.z).toStringAsFixed(4)}'),
@@ -165,6 +166,7 @@ class _MyAppState extends State<MyApp> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
+                  Text('${degrees(_absoluteOrientation.w).toStringAsFixed(4)}'),
                   Text('${degrees(_absoluteOrientation.x).toStringAsFixed(4)}'),
                   Text('${degrees(_absoluteOrientation.y).toStringAsFixed(4)}'),
                   Text('${degrees(_absoluteOrientation.z).toStringAsFixed(4)}'),
