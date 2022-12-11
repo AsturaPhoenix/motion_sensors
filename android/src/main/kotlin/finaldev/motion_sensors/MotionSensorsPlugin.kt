@@ -108,6 +108,14 @@ public class MotionSensorsPlugin : FlutterPlugin, MethodChannel.MethodCallHandle
   }
 
   private fun teardownEventChannels() {
+    accelerationStreamHandler!!.onCancel(null)
+    gyroScopeStreamHandler!!.onCancel(null)
+    magnetometerStreamHandler!!.onCancel(null)
+    userAccelerationStreamHandler!!.onCancel(null)
+    orientationStreamHandler!!.onCancel(null)
+    absoluteOrientationStreamHandler!!.onCancel(null)
+    screenOrientationStreamHandler!!.onCancel(null)
+
     methodChannel!!.setMethodCallHandler(null)
     accelerometerChannel!!.setStreamHandler(null)
     userAccelerometerChannel!!.setStreamHandler(null)
