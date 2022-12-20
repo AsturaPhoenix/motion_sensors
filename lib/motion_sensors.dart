@@ -5,13 +5,20 @@ import 'package:vector_math/vector_math_64.dart';
 
 final MotionSensors motionSensors = MotionSensors();
 const MethodChannel _methodChannel = MethodChannel('motion_sensors/method');
-const EventChannel _accelerometerEventChannel = EventChannel('motion_sensors/accelerometer');
-const EventChannel _gyroscopeEventChannel = EventChannel('motion_sensors/gyroscope');
-const EventChannel _magnetometerEventChannel = EventChannel('motion_sensors/magnetometer');
-const EventChannel _userAccelerometerEventChannel = EventChannel('motion_sensors/user_accelerometer');
-const EventChannel _orientationChannel = EventChannel('motion_sensors/orientation');
-const EventChannel _absoluteOrientationChannel = EventChannel('motion_sensors/absolute_orientation');
-const EventChannel _screenOrientationChannel = EventChannel('motion_sensors/screen_orientation');
+const EventChannel _accelerometerEventChannel =
+    EventChannel('motion_sensors/accelerometer');
+const EventChannel _gyroscopeEventChannel =
+    EventChannel('motion_sensors/gyroscope');
+const EventChannel _magnetometerEventChannel =
+    EventChannel('motion_sensors/magnetometer');
+const EventChannel _userAccelerometerEventChannel =
+    EventChannel('motion_sensors/user_accelerometer');
+const EventChannel _orientationChannel =
+    EventChannel('motion_sensors/orientation');
+const EventChannel _absoluteOrientationChannel =
+    EventChannel('motion_sensors/absolute_orientation');
+const EventChannel _screenOrientationChannel =
+    EventChannel('motion_sensors/screen_orientation');
 
 // from https://github.com/flutter/plugins/tree/master/packages/sensors
 /// Discrete reading from an accelerometer. Accelerometers measure the velocity
@@ -137,8 +144,8 @@ class UserAccelerometerEvent {
 
 class OrientationEvent {
   OrientationEvent(this.quaternion, {this.accuracy});
-  OrientationEvent.fromList(List<double> list)
-      : quaternion = Quaternion(list[0], list[1], list[2], list[3]),
+  OrientationEvent.fromList(List<double?> list)
+      : quaternion = Quaternion(list[0]!, list[1]!, list[2]!, list[3]!),
         accuracy = list[4];
 
   final Quaternion quaternion;
@@ -176,55 +183,70 @@ class MotionSensors {
 
   /// Determines whether sensor is available.
   Future<bool> isSensorAvailable(int sensorType) async {
-    final available = await _methodChannel.invokeMethod('isSensorAvailable', sensorType);
+    final available =
+        await _methodChannel.invokeMethod('isSensorAvailable', sensorType);
     return available;
   }
 
   /// Determines whether accelerometer is available.
-  Future<bool> isAccelerometerAvailable() => isSensorAvailable(TYPE_ACCELEROMETER);
+  Future<bool> isAccelerometerAvailable() =>
+      isSensorAvailable(TYPE_ACCELEROMETER);
 
   /// Determines whether magnetometer is available.
-  Future<bool> isMagnetometerAvailable() => isSensorAvailable(TYPE_MAGNETIC_FIELD);
+  Future<bool> isMagnetometerAvailable() =>
+      isSensorAvailable(TYPE_MAGNETIC_FIELD);
 
   /// Determines whether gyroscope is available.
   Future<bool> isGyroscopeAvailable() => isSensorAvailable(TYPE_GYROSCOPE);
 
   /// Determines whether user accelerometer is available.
-  Future<bool> isUserAccelerationAvailable() => isSensorAvailable(TYPE_USER_ACCELEROMETER);
+  Future<bool> isUserAccelerationAvailable() =>
+      isSensorAvailable(TYPE_USER_ACCELEROMETER);
 
   /// Determines whether orientation is available.
   Future<bool> isOrientationAvailable() => isSensorAvailable(TYPE_ORIENTATION);
 
   /// Determines whether absolute orientation is available.
-  Future<bool> isAbsoluteOrientationAvailable() => isSensorAvailable(TYPE_ABSOLUTE_ORIENTATION);
+  Future<bool> isAbsoluteOrientationAvailable() =>
+      isSensorAvailable(TYPE_ABSOLUTE_ORIENTATION);
 
   /// Change the update interval of sensor. The units are in microseconds.
   Future setSensorUpdateInterval(int sensorType, int interval) async {
-    await _methodChannel.invokeMethod('setSensorUpdateInterval', {"sensorType": sensorType, "interval": interval});
+    await _methodChannel.invokeMethod('setSensorUpdateInterval',
+        {"sensorType": sensorType, "interval": interval});
   }
 
   /// The update interval of accelerometer. The units are in microseconds.
-  set accelerometerUpdateInterval(int interval) => setSensorUpdateInterval(TYPE_ACCELEROMETER, interval);
+  set accelerometerUpdateInterval(int interval) =>
+      setSensorUpdateInterval(TYPE_ACCELEROMETER, interval);
 
   /// The update interval of magnetometer. The units are in microseconds.
-  set magnetometerUpdateInterval(int interval) => setSensorUpdateInterval(TYPE_MAGNETIC_FIELD, interval);
+  set magnetometerUpdateInterval(int interval) =>
+      setSensorUpdateInterval(TYPE_MAGNETIC_FIELD, interval);
 
   /// The update interval of Gyroscope. The units are in microseconds.
-  set gyroscopeUpdateInterval(int interval) => setSensorUpdateInterval(TYPE_GYROSCOPE, interval);
+  set gyroscopeUpdateInterval(int interval) =>
+      setSensorUpdateInterval(TYPE_GYROSCOPE, interval);
 
   /// The update interval of user accelerometer. The units are in microseconds.
-  set userAccelerometerUpdateInterval(int interval) => setSensorUpdateInterval(TYPE_USER_ACCELEROMETER, interval);
+  set userAccelerometerUpdateInterval(int interval) =>
+      setSensorUpdateInterval(TYPE_USER_ACCELEROMETER, interval);
 
   /// The update interval of orientation. The units are in microseconds.
-  set orientationUpdateInterval(int interval) => setSensorUpdateInterval(TYPE_ORIENTATION, interval);
+  set orientationUpdateInterval(int interval) =>
+      setSensorUpdateInterval(TYPE_ORIENTATION, interval);
 
   /// The update interval of absolute orientation. The units are in microseconds.
-  set absoluteOrientationUpdateInterval(int interval) => setSensorUpdateInterval(TYPE_ABSOLUTE_ORIENTATION, interval);
+  set absoluteOrientationUpdateInterval(int interval) =>
+      setSensorUpdateInterval(TYPE_ABSOLUTE_ORIENTATION, interval);
 
   /// A broadcast stream of events from the device accelerometer.
   Stream<AccelerometerEvent> get accelerometer {
     if (_accelerometerEvents == null) {
-      _accelerometerEvents = _accelerometerEventChannel.receiveBroadcastStream().map((dynamic event) => AccelerometerEvent.fromList(event.cast<double>()));
+      _accelerometerEvents = _accelerometerEventChannel
+          .receiveBroadcastStream()
+          .map((dynamic event) =>
+              AccelerometerEvent.fromList(event.cast<double>()));
     }
     return _accelerometerEvents!;
   }
@@ -232,7 +254,8 @@ class MotionSensors {
   /// A broadcast stream of events from the device gyroscope.
   Stream<GyroscopeEvent> get gyroscope {
     if (_gyroscopeEvents == null) {
-      _gyroscopeEvents = _gyroscopeEventChannel.receiveBroadcastStream().map((dynamic event) => GyroscopeEvent.fromList(event.cast<double>()));
+      _gyroscopeEvents = _gyroscopeEventChannel.receiveBroadcastStream().map(
+          (dynamic event) => GyroscopeEvent.fromList(event.cast<double>()));
     }
     return _gyroscopeEvents!;
   }
@@ -240,7 +263,10 @@ class MotionSensors {
   /// Events from the device accelerometer with gravity removed.
   Stream<UserAccelerometerEvent> get userAccelerometer {
     if (_userAccelerometerEvents == null) {
-      _userAccelerometerEvents = _userAccelerometerEventChannel.receiveBroadcastStream().map((dynamic event) => UserAccelerometerEvent.fromList(event.cast<double>()));
+      _userAccelerometerEvents = _userAccelerometerEventChannel
+          .receiveBroadcastStream()
+          .map((dynamic event) =>
+              UserAccelerometerEvent.fromList(event.cast<double>()));
     }
     return _userAccelerometerEvents!;
   }
@@ -248,7 +274,10 @@ class MotionSensors {
   /// A broadcast stream of events from the device magnetometer.
   Stream<MagnetometerEvent> get magnetometer {
     if (_magnetometerEvents == null) {
-      _magnetometerEvents = _magnetometerEventChannel.receiveBroadcastStream().map((dynamic event) => MagnetometerEvent.fromList(event.cast<double>()));
+      _magnetometerEvents = _magnetometerEventChannel
+          .receiveBroadcastStream()
+          .map((dynamic event) =>
+              MagnetometerEvent.fromList(event.cast<double>()));
     }
     return _magnetometerEvents!;
   }
@@ -268,7 +297,7 @@ class MotionSensors {
       _absoluteOrientationEvents = _absoluteOrientationChannel
           .receiveBroadcastStream()
           .map((dynamic event) =>
-              OrientationEvent.fromList(event.cast<double>()));
+              OrientationEvent.fromList(event.cast<double?>()));
     }
     return _absoluteOrientationEvents!;
   }

@@ -195,8 +195,13 @@ class RotationVectorStreamHandler(private val sensorManager: SensorManager, sens
   }
 
   override fun onSensorChanged(event: SensorEvent?) {
-    val values = event!!.values.map(Float::toDouble).toMutableList()
-    if (values.size < 4) values.add(Math.sqrt(1 - values[0] * values[0] - values[1] * values[1] - values[2] * values[2]))
+    val values = event!!.values.map<Double?>(Float::toDouble).toMutableList()
+    if (values.size == 3) values.add(Math.sqrt(1 - values[0]!! * values[0]!! - values[1]!! * values[1]!! - values[2]!! * values[2]!!))
+    if (values.size == 4 && event.accuracy > 0.0) {
+      values.add(-event.accuracy.toDouble())
+    } else if (values.size >= 5 && values[4] == -1.0) {
+      values[4] = if (event.accuracy > 0.0) -event.accuracy.toDouble() else null
+    }
     eventSink?.success(values)
   }
 
